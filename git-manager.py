@@ -162,6 +162,32 @@ def update_repos(config, working_dir):
 			run_playbook(working_dir, org, repo, extra_vars)
 			LOGGER.info("Finished running 'run.yml' in '{}/{}'".format(org, repo))
 
+def git_add(config, working_dir, org, repo):
+	# this should be a list
+	add_files = config['general']['git-add']
+	command = ['git', 'add']
+	command.extend(add_files)
+	repo_dir = get_repo_dir(working_dir, org, repo)
+	subprocess_command(command, repo_dir)
+
+def git_commit(config, working_dir, org, repo):
+	commit_message = config['general']['commit-message']
+	command = ['git', 'commit', '-m', commit_message]
+	repo_dir = get_repo_dir(working_dir, org, repo)
+	subprocess_command(command, repo_dir)
+
+def git_push(config, working_dir, org, repo):
+	command = ['git', 'push']
+	repo_dir = get_repo_dir(working_dir, org, repo)
+	subprocess_command(command, repo_dir)
+
+def git_add_commit_push_repos(config, working_dir):
+	for org, value in config['orgs'].items():
+		repos = value['repos']
+		for repo in repos:
+			git_add(config, working_dir, org, repo)
+			git_commit(config, working_dir, org, repo)
+			git_push(config, working_dir, org, repo)
 
 # at this point we should have cloned, created a branch
 # checked out this branch and copied over all of the files 
@@ -171,7 +197,8 @@ def main():
 	config=get_config()
 	working_dir=create_working_dir()
 	clone_and_setup_repos(config, working_dir)
-	update_repos(config, working_dir)	
+	update_repos(config, working_dir)
+	git_add_commit_push_repos(config, working_dir)
 
 if __name__ == "__main__":
 	LOGGER = create_logger()
