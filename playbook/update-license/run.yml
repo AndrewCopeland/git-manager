@@ -1,0 +1,9 @@
+---
+- name: Running this playbook in {{ org }}/{{ repo }}
+  hosts: localhost
+  tasks:
+    - name: replace {{ from_year }} to {{ to_year }} in LICENSE
+      shell: cat LICENSE | sed 's/{{ from_year }}/{{ to_year }}/g' > TMP_LICENSE
+      
+    - name: move TMP_LICENSE to LICENSE
+      shell: mv TMP_LICENSE LICENSE
