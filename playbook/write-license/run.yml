@@ -1,0 +1,8 @@
+---
+# just replace the LICENSE.new in this directory with your new directory to use
+# no extra_args required for this playbook
+- name: Running this playbook in {{ org }}/{{ repo }}
+  hosts: localhost
+  tasks:
+    - name: LICENSE is already copied by git-manager
+      shell: echo "LICENSE is already copied by git-manager"
