@@ -9,7 +9,6 @@ from shutil import copyfile
 import json
 import logging
 
-
 global LOGGER
 
 MANDATORY_GENERAL_PARAMETERS = [
@@ -19,7 +18,6 @@ MANDATORY_GENERAL_PARAMETERS = [
 	'git-add',
 	'playbook-dir'
 ]
-
 
 def create_logger():
 	# create logger with 'spam_application'
@@ -120,6 +118,8 @@ def get_config():
 
 	# validate mandatory config fields
 	validate_config(config)
+	config_pprint = json.dumps(config, sort_keys=True, indent=4, separators=(',', ': '))
+	LOGGER.info("git manager configuration: " + config_pprint)
 	return config
 
 def create_working_dir():
@@ -177,7 +177,8 @@ def git_commit(config, working_dir, org, repo):
 	subprocess_command(command, repo_dir)
 
 def git_push(config, working_dir, org, repo):
-	command = ['git', 'push']
+	branch_name = config['general']['branch-name']
+	command = ['git', 'push', '--set-upstream', 'origin', branch_name]
 	repo_dir = get_repo_dir(working_dir, org, repo)
 	subprocess_command(command, repo_dir)
 
@@ -189,16 +190,44 @@ def git_add_commit_push_repos(config, working_dir):
 			git_commit(config, working_dir, org, repo)
 			git_push(config, working_dir, org, repo)
 
-# at this point we should have cloned, created a branch
-# checked out this branch and copied over all of the files 
-# in the playbook dir into the repo directories
+def git_delete_branch_locally(config, working_dir, org, repo):
+	branch_name = config['general']['branch-name']
+	command = ['git', 'branch', '-d', branch_name]
+	repo_dir = get_repo_dir(working_dir, org, repo)
+	subprocess_command(command, repo_dir)
+
+def git_delete_branch_remote(config, working_dir, org, repo):
+	branch_name = config['general']['branch-name']
+	command = ['git', 'push', 'origin', '--delete', branch_name]
+	repo_dir = get_repo_dir(working_dir, org, repo)
+	subprocess_command(command, repo_dir)
+
+def git_delete_branches(config, working_dir):
+	for org, value in config['orgs'].items():
+		repos = value['repos']
+		for repo in repos:
+			git_checkout(working_dir, org, repo, "master")
+			git_delete_branch_locally(config, working_dir, org, repo)
+			git_delete_branch_remote(config, working_dir, org, repo)
+
+def run_git_manager(config, working_dir):
+	if config['general'].get('delete-branch') is True:
+		LOGGER.info("Starting to delete branches from repos")
+		git_delete_branches(config, working_dir)
+		return
+
+	# if note deleting branch then
+	# assume adding a branch
+	LOGGER.info("Starting to create branches in repos")
+	update_repos(config, working_dir)
+	git_add_commit_push_repos(config, working_dir)
 
 def main():
 	config=get_config()
 	working_dir=create_working_dir()
 	clone_and_setup_repos(config, working_dir)
-	update_repos(config, working_dir)
-	git_add_commit_push_repos(config, working_dir)
+	run_git_manager(config, working_dir)
+
 
 if __name__ == "__main__":
 	LOGGER = create_logger()
