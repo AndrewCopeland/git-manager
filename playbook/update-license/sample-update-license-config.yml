@@ -1,0 +1,26 @@
+# python3
+# repersent your orgs and repos here
+# config['orgs']['cyberark']['repos']
+# config['general']['branch-name']
+orgs:
+    cyberark:
+      repos:
+        - summon
+        - conjur
+        - summon-conjur
+  
+  # repersent your general configs here
+  general:
+    branch_name: updating-LICENSE
+    commit_message: updating LICENSE file
+    pr_name: updating LICENSE
+    git_add:
+      - LICENSE
+    remove_tmp_dir: no
+    playbook_dir: ./playbook/update-license
+    create_branch: yes
+    extra_vars:
+      from_year: 2020
+      to_year: 2021
+  
+  
