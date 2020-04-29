@@ -1,0 +1,13 @@
+---
+- name: Running this playbook in '{{ org }}/{{ repo }}'
+  hosts: localhost
+  tasks:
+    - name: make directory '{{ destination_dir }}' if it does not exist
+      shell: mkdir -p "{{ destination_dir }}"
+
+    - name: copy '{{ static_file_path }}' into '{{ destination_dir }}/{{ file_name }}'
+      shell: cp "{{ static_file_path }}" "{{ destination_dir }}/{{ file_name }}"
+
+    - name: open browser
+      shell: open https://www.github.com/{{ org }}/{{ repo }}
+      
