@@ -13,11 +13,11 @@ import logging
 global LOGGER
 
 MANDATORY_GENERAL_PARAMETERS = [
-	'pr-name',
-	'branch-name',
-	'commit-message',
-	'git-add',
-	'playbook-dir'
+	'pr_name',
+	'branch_name',
+	'commit_message',
+	'git_add',
+	'playbook_dir'
 ]
 
 
@@ -133,14 +133,14 @@ def clone_and_setup_repos(config, working_dir):
 		for repo in repos:
 			LOGGER.info("Cloning repo '{}/{}' and copying over files located in playbook directory".format(org, repo))
 			git_clone(working_dir, org, repo)
-			branch_name = config['general']['branch-name']
+			branch_name = config['general']['branch_name']
 			# if we are creating branch then lets do it
-			if config['general'].get('create-branch') is True:
+			if config['general'].get('create_branch') is True:
 				git_branch(working_dir, org, repo, branch_name)
 			# now checkout branch
 			git_checkout(working_dir, org, repo, branch_name)
 
-			playbook_dir = config['general']['playbook-dir']
+			playbook_dir = config['general']['playbook_dir']
 			# now copy over the playbook
 			playbook_files = [f for f in listdir(playbook_dir) if isfile(join(playbook_dir, f))]
 			for playbook_file in playbook_files:
@@ -150,34 +150,35 @@ def clone_and_setup_repos(config, working_dir):
 
 def update_repos(config, working_dir):
 	extra_vars = {}
-	if 'extra-vars' in config['general']:
-		extra_vars = config['general']['extra-vars']
+	if 'extra_vars' in config['general']:
+		extra_vars = config['general']['extra_vars']
+	LOGGER.debug("Extra Variables:", extra_vars)
 
-	for org, value in config['orgs'].items():
+	for organization, value in config['orgs'].items():
 		repos = value['repos']
 		for repo in repos:
-			LOGGER.info("Running 'run.yml' in '{}/{}'".format(org, repo))
-			extra_vars['org'] = org
+			LOGGER.info("Running 'run.yml' in '{}/{}'".format(organization, repo))
+			extra_vars['org'] = organization
 			extra_vars['repo'] = repo
-			run_playbook(working_dir, org, repo, extra_vars)
-			LOGGER.info("Finished running 'run.yml' in '{}/{}'".format(org, repo))
+			run_playbook(working_dir, organization, repo, extra_vars)
+			LOGGER.info("Finished running 'run.yml' in '{}/{}'".format(organization, repo))
 
 def git_add(config, working_dir, org, repo):
 	# this should be a list
-	add_files = config['general']['git-add']
+	add_files = config['general']['git_add']
 	command = ['git', 'add']
 	command.extend(add_files)
 	repo_dir = get_repo_dir(working_dir, org, repo)
 	subprocess_command(command, repo_dir)
 
 def git_commit(config, working_dir, org, repo):
-	commit_message = config['general']['commit-message']
+	commit_message = config['general']['commit_message']
 	command = ['git', 'commit', '-m', commit_message]
 	repo_dir = get_repo_dir(working_dir, org, repo)
 	subprocess_command(command, repo_dir)
 
 def git_push(config, working_dir, org, repo):
-	command = ['git', 'push']
+	command = ['git', 'push', '--set-upstream', 'origin', config['general']['branch_name']]
 	repo_dir = get_repo_dir(working_dir, org, repo)
 	subprocess_command(command, repo_dir)
 
