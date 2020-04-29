@@ -1,0 +1,30 @@
+orgs:
+  AndrewCopeland:
+    repos:
+      - git-manager-test-repo
+      - git-manager-test-repo-2
+      - git-manager-test-repo-3
+
+general:
+  # if you ever need to delete the branches 
+  # that have been automatically created then
+  # uncomment line below
+  delete-branch: yes
+  branch-name: updating-LICENSE
+  commit-message: new LICENSE file
+  pr-name: new LICENSE
+  git-add:
+    - LICENSE
+  remove-tmp-dir: no
+  playbook-dir: ./playbook/write-license
+  create-branch: yes
+  extra-vars:
+    not_required: true
+
+
+
+
+
+
+
+

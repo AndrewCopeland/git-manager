@@ -1,0 +1,26 @@
+orgs:
+  AndrewCopeland:
+    repos:
+      - git-manager-test-repo
+      - git-manager-test-repo-2
+      - git-manager-test-repo-3
+
+general:
+  branch-name: new-license
+  commit-message: new LICENSE file
+  pr-name: new LICENSE
+  git-add:
+    - LICENSE
+  remove-tmp-dir: no
+  playbook-dir: ./playbook/write-license
+  create-branch: yes
+  extra-vars:
+    not_required: true
+
+
+
+
+
+
+
+
